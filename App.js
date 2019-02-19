@@ -13,8 +13,6 @@ import VideoScreen from './VideoScreen';
 
 
 const overrideNavOptionsOnLoad = ({ navigation, screenProps }) => {
-  // StatusBar.setBarStyle('dark-content', true);
-  // Platform.OS == 'android' && StatusBar.setBackgroundColor('white', true);
   let toggleLangButton;
   if (Platform.OS == 'ios') {
     toggleLangButton =
@@ -138,6 +136,8 @@ export default class App extends React.Component {
   }
 
   render() {
+    StatusBar.setBarStyle('dark-content', true);
+    Platform.OS == 'android' && StatusBar.setBackgroundColor('white', true);
     return (
       <MenuProvider>
         <AppContainer screenProps={{ toggleLang : this.toggleLang, ...this.state}}/>

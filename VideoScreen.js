@@ -46,6 +46,7 @@ export default class VideoScreen extends Component {
       aspectRatio: 16/9,
       viewText: 'loading...'
     };
+
     this._didFocusSubscription = props.navigation.addListener('didFocus', () =>
       BackHandler.addEventListener('hardwareBackPress', this.onBackButtonPressAndroid)
     );
@@ -143,10 +144,7 @@ export default class VideoScreen extends Component {
       Orientation.lockToPortrait();
       this.props.navigation.setParams({header: undefined}); // setting to undef uses default header
       (Platform.OS == 'android') && this.videoPlayer.dismissFullscreenPlayer();
-      StatusBar.setBarStyle('dark-content', true);
     } else {
-      
-      
       (Platform.OS == 'android') && this.videoPlayer.presentFullscreenPlayer();
       this.props.navigation.setParams({header: null});
       Orientation.lockToLandscape();

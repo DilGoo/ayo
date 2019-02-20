@@ -5,9 +5,9 @@ import {
     Image,
     Platform,
     ScrollView,
-    StatusBar,
     StyleSheet,
     Text,
+    TouchableOpacity,
     View,
 } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-navigation';
 
 import MediaControls from './components/MediaControls';
 import PLAYER_STATES from './components/Constants';
+import { Button } from 'react-native-elements';
 
 Orientation.lockToPortrait();
 
@@ -44,7 +45,8 @@ export default class VideoScreen extends Component {
       },
       videoStyle: styles.videoView,
       aspectRatio: 16/9,
-      viewText: 'loading...'
+      viewText: 'loading...',
+      thumbUp: null
     };
 
     this._didFocusSubscription = props.navigation.addListener('didFocus', () =>
@@ -186,6 +188,14 @@ export default class VideoScreen extends Component {
     //console.log(data.isBuffering);
   }
 
+  onThumbPress = val => {
+    if (val == this.state.thumbUp) {
+      this.setState({ thumbUp: null });
+    } else {
+      this.setState({ thumbUp: val });
+    }
+  }
+
   renderToolbar = () => {
     if (this.state.isFullScreen) {
       const { navigation } = this.props;
@@ -208,6 +218,8 @@ export default class VideoScreen extends Component {
     const commentsText = (this.props.lang) == 'chinese' 
                                               ? '我们正在努力做评论功能。你们可以先加下我的微信，我会组织一些群一起讨论视频内容并且学习里面地道的英语，有什么问题都可以来问我哦！'
                                               : 'Coming soon. For now add the following WeChat for discussion and tutoring';
+    const thumbUpSrc = (this.state.thumbUp) ? require('./assets/ic_thumb_filled.png') : require('./assets/ic_thumb.png');
+    const thumbDownSrc = (this.state.thumbUp) == false ? require('./assets/ic_thumb_filled.png') : require('./assets/ic_thumb.png');
     return (
       
       <View style={styles.container}>
@@ -264,11 +276,35 @@ export default class VideoScreen extends Component {
             <View style={styles.videoTitleBox}>
               <Text style={styles.videoTitle}>{videoTitle}</Text>
             </View>
-            <View style={styles.creatorBox}>
-              <Text style={styles.creatorText}>{this.props.lang == 'chinese' ? '创作者:' : 'Creator:'} {creator}</Text>
-            </View>
             <View style={styles.viewsBox}>
               <Text style={styles.viewsText}>{this.props.lang == 'chinese' ? '浏览量:' : 'Views:'} {this.state.viewText}</Text>
+            </View>
+            <View style={styles.interactionBox}>
+              <View style={styles.iconTextBox}>
+                <Image source={require('./assets/ic_comments.png')} style={styles.commentsPic} />
+                <Text style={styles.commentsText}>10 Comments</Text>
+              </View>
+              <View style={styles.interactionThumbsBox}>
+                <TouchableOpacity style={styles.thumbUpTouchBox} onPress={() => this.onThumbPress(true)}>
+                  <Image source={thumbUpSrc} style={styles.thumbsUp} />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.thumbDownTouchBox} onPress={() => this.onThumbPress(false)}>
+                  <Image source={thumbDownSrc} style={styles.thumbsDown} />
+                </TouchableOpacity>              
+              </View>
+            </View>
+            <View style={styles.creatorBox}>
+              <View style={styles.iconTextBox}>
+                <Image source={require('./assets/ic_profile.png')} style={styles.profilePic} />
+                <Text style={styles.creatorText}>{creator}</Text>
+              </View>
+              <View>
+                <TouchableOpacity style={styles.buttonFollow}>
+                  <View style={styles.followTextView}>
+                    <Text style={styles.followText}>FOLLOW</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
             </View>
             
             <View style={styles.dateBox}>
@@ -278,7 +314,7 @@ export default class VideoScreen extends Component {
               <Text style={styles.descriptionText}>{description}</Text>
             </View>
             <View style={styles.commentsBox}>
-              <Text style={styles.commentsText}>{this.props.lang == 'chinese' ? '评论' : 'Comments'}</Text>
+              <Text style={styles.commentsTitle}>{this.props.lang == 'chinese' ? '评论' : 'Comments'}</Text>
               <Text style={styles.comingSoon}>{commentsText}</Text>
             </View>
             <Image source={require('./assets/qrcode.jpg')} style={{resizeMode: 'contain', width:width-20,height:1.2*(width-20)}}/>      
@@ -331,7 +367,7 @@ const styles = StyleSheet.create({
   videoTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
+    //marginBottom: 10,
     color: 'black'
   },
   scroll: {
@@ -339,48 +375,119 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   viewsText: {
-    paddingTop:7,
+    paddingTop: 4,
     paddingBottom: 5,
     fontWeight: '100',
     borderBottomColor: 'dimgrey'
   },
   viewsBox: {
-    borderBottomColor: 'lightgrey',
+    //borderBottomColor: 'lightgrey',
     //borderBottomWidth: 1
   },
+  interactionBox: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 3,
+    //backgroundColor: 'lightblue'
+  },
+  iconTextBox: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  commentsPic: {
+    height: 30,
+    width: 30,
+  },
+  commentsText: {
+    fontSize: 16,
+    color: 'black',
+    marginLeft: 4,
+    //backgroundColor: 'red'
+  },
+  interactionThumbsBox: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginBottom: 5
+  },
+  thumbUpTouchBox: {
+    marginRight: 3
+  },
+  thumbDownTouchBox: {
+  },
+  thumbsUp: {
+    margin: 5,
+    width: 25,
+    height: 30
+  },
+  thumbsDown: {
+    margin: 5,
+    width: 25,
+    height: 30,
+    transform: [{ rotate: '180deg' }]
+  },
   creatorBox: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     borderColor: 'lightgrey',
     borderBottomWidth: 1,
-    //borderTopWidth: 1,
-    paddingBottom: 7
+    borderTopWidth: 1,
+    paddingVertical: 7
+  },
+  profilePic: {
+    height: 50,
+    width: 50,
+    borderRadius: 50,
   },
   creatorText: {
+    fontSize: 17,
+    color: 'black',
+    marginLeft: 2
+  },
+  buttonFollow: {
+    height: 38,
+    width: 72,
+    borderWidth: 2,
+    borderColor: 'black',
+    borderRadius: 2
+  },
+  followTextView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  followText: {
     fontSize: 15,
-    color: 'black'
+    color: 'black',
+    fontWeight: 'bold'
   },
   dateText: {
     //paddingBottom: 7,
     fontWeight: "100"
   },
   dateBox: {
-    paddingBottom: 7,
-    borderColor: 'lightgrey',
-    borderBottomWidth: 1
+    paddingVertical: 10,
   },
   descriptionText: {
-    paddingTop: 20,
+    paddingTop: 5,
     fontWeight: '100',
-    paddingBottom: 20,
+    paddingBottom: 15,
     
   },
   descriptionBox: {
     borderColor: 'lightgrey',
     borderBottomWidth: 1
   },
-  commentsText: {
+  commentsTitle: {
     paddingTop: 10,
     paddingBottom:5,
-    fontSize: 15,
+    fontSize: 17,
     color: 'black'
   },
   comingSoon: {

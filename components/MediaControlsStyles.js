@@ -111,16 +111,16 @@ export default StyleSheet.create({
     color: 'white',
   },
   track: {
-    height: 5,
+    height: 3,
     borderRadius: 1,
   },
   thumb: {
-    width: 15,
-    height: 15,
+    width: 13,
+    height: 13,
     borderRadius: 50,
     backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: 'dimgrey'
+    // borderWidth: 1,
+    // borderColor: 'dimgrey'
   },
   menuTrigger: {
     paddingHorizontal: 10,

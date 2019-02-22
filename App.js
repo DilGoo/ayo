@@ -26,7 +26,7 @@ const overrideNavOptionsOnLoad = ({ navigation, screenProps }) => {
       <TouchableOpacity 
         onPress={screenProps.toggleLang}
         style={{padding: 13, color:'black', fontSize:30}}>
-        <Text style={{fontSize:20}}>
+        <Text style={{fontSize:20, color:'black'}}>
           {screenProps.lang == 'chinese' ? 'EN' : '中文'}
         </Text>
       </TouchableOpacity>;

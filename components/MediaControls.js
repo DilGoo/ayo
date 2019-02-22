@@ -33,6 +33,7 @@ type Props = {
   mainColor: string,
   isLoading: boolean,
   progress: number,
+  buffer: number,
   duration: number,
   playerState: PlayerState,
   onFullScreen: Function,
@@ -205,6 +206,7 @@ class MediaControls extends Component<Props, State> {
       onFullScreen,
       playerState,
       progress,
+      buffer,
       toolbar,
     } = this.props;
     
@@ -218,9 +220,7 @@ class MediaControls extends Component<Props, State> {
       
       <View style={styles.container}>
         <View style={[styles.toolbarRow]}>
-          <View styles={[styles.videoTitle]}>
             {this.props.toolbar}
-          </View>
         </View>
         <View style={[styles.controlsRow]}>
           {isLoading
@@ -244,9 +244,12 @@ class MediaControls extends Component<Props, State> {
                 onSlidingComplete={this.seekVideo}
                 maximumValue={Math.floor(duration)}
                 value={Math.floor(progress)}
+                buffer={Math.floor(buffer)}
                 trackStyle={styles.track}
                 thumbStyle={[styles.thumb]}
                 minimumTrackTintColor='#f9f9f9'
+                maximumTrackTintColor='#666666'
+                bufferTrackTintColor='#bbbbbb'
               />
             </View>
 

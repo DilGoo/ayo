@@ -35,7 +35,7 @@ export default StyleSheet.create({
     //backgroundColor: 'red'
   },
   videoTitle: {
-    // backgroundColor: 'green',
+    //backgroundColor: 'green',
     // marginTop: 10,
     // flex:1,
     // alignSelf: 'stretch'

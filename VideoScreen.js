@@ -27,6 +27,7 @@ const width = Dimensions.get('screen').width;
 
 export default class VideoScreen extends Component {
   videoPlayer;
+  scrollView;
   _didFocusSubscription;
   _willBlurSubscription;
 
@@ -34,6 +35,7 @@ export default class VideoScreen extends Component {
     super(props);
     this.state = {
       currentTime: 0,
+      bufferTime: 0,
       duration: 0,
       isFullScreen: false,
       isLoading: true,
@@ -46,7 +48,8 @@ export default class VideoScreen extends Component {
       videoStyle: styles.videoView,
       aspectRatio: 16/9,
       viewText: 'loading...',
-      thumbUp: null
+      thumbUp: null,
+      resizeMode: 'contain'
     };
 
     this._didFocusSubscription = props.navigation.addListener('didFocus', () =>
@@ -111,9 +114,9 @@ export default class VideoScreen extends Component {
     // Video Player will continue progress even if the video already ended
     //if (!isLoading) {
     this.setState({ currentTime: data.currentTime,
+                    bufferTime: data.playableDuration,
                     isLoading: false });
     //}
-    //console.log('seek: '+data.playableDuration);
   };
 
   onBandwidthUpdate = data => {
@@ -188,6 +191,19 @@ export default class VideoScreen extends Component {
     //console.log(data.isBuffering);
   }
 
+  toggleResizeMode = () => {
+    this.setState(({ resizeMode }) => {
+      let newMode;
+      if (resizeMode == 'contain') {
+        newMode = 'cover';
+      } else {
+        newMode = 'contain';
+      }
+
+      return { resizeMode : newMode };
+    });
+  }
+
   onThumbPress = val => {
     if (val == this.state.thumbUp) {
       this.setState({ thumbUp: null });
@@ -196,12 +212,23 @@ export default class VideoScreen extends Component {
     }
   }
 
+  scrollToComments = () => {
+    this.scrollView.scrollToEnd();
+  }
+
   renderToolbar = () => {
     if (this.state.isFullScreen) {
       const { navigation } = this.props;
       const info = (this.props.lang) == 'chinese' ? navigation.getParam('chineseInfo') : navigation.getParam('englishInfo');
       const videoTitle = info.videoTitle;
-      return (<Text style={styles.toolbar}>{videoTitle}</Text>);
+      return (
+        <View style={styles.toolbar}>
+          <Text style={styles.fullscreenTitle}>{videoTitle}</Text>
+          <TouchableOpacity style={styles.overscan} onPress={this.toggleResizeMode}>
+            <Image source={require('./assets/ic_overscan.png')} />
+          </TouchableOpacity>
+        </View>
+      );
     } else {
       return null;
     }
@@ -238,7 +265,7 @@ export default class VideoScreen extends Component {
             onBandwidthUpdate={this.onBandwidthUpdate}
             paused={this.state.paused}
             ref={videoPlayer => (this.videoPlayer = videoPlayer)}
-            resizeMode="contain"
+            resizeMode={this.state.resizeMode}
             //source={{ uri: 'https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4' }}
             //source={{ uri: 'https://www.3playmedia.com/wp-content/uploads/encoded-captions-demo.m4v' }}
             //source={{ uri: 'https://ph2dw9.oloadcdn.net/dl/l/-0QCi2RsXBGJnCGH/UmLNspHdKgI/encoded-captions-demo.m4v'}}
@@ -268,11 +295,12 @@ export default class VideoScreen extends Component {
               onCaptionSelect={this.onCaptionSelect}
               playerState={this.state.playerState}
               progress={this.state.currentTime}
+              buffer={this.state.bufferTime}
               toolbar={this.renderToolbar()}
             />
         </View>
         {!this.state.isFullScreen &&
-          <ScrollView style={styles.scroll}>
+          <ScrollView style={styles.scroll} ref={scrollView => (this.scrollView = scrollView)}>
             <View style={styles.videoTitleBox}>
               <Text style={styles.videoTitle}>{videoTitle}</Text>
             </View>
@@ -280,10 +308,14 @@ export default class VideoScreen extends Component {
               <Text style={styles.viewsText}>{this.props.lang == 'chinese' ? '浏览量:' : 'Views:'} {this.state.viewText}</Text>
             </View>
             <View style={styles.interactionBox}>
-              <View style={styles.iconTextBox}>
-                <Image source={require('./assets/ic_comments.png')} style={styles.commentsPic} />
-                <Text style={styles.commentsText}>10 Comments</Text>
-              </View>
+              <TouchableOpacity onPress={this.scrollToComments}>
+                <View>
+                  <View style={styles.iconTextBox}>
+                    <Image source={require('./assets/ic_comments.png')} style={styles.commentsPic} />
+                    <Text style={styles.commentsText}>No Comments</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
               <View style={styles.interactionThumbsBox}>
                 <TouchableOpacity style={styles.thumbUpTouchBox} onPress={() => this.onThumbPress(true)}>
                   <Image source={thumbUpSrc} style={styles.thumbsUp} />
@@ -347,6 +379,11 @@ const styles = StyleSheet.create({
     //alignSelf: 'center'
   },
   toolbar: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  fullscreenTitle: {
     //marginTop: 10,
     //backgroundColor: 'green',
     marginLeft: 25,
@@ -355,6 +392,10 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold'
+  },
+  overscan: {
+    marginRight: 25,
+    marginTop: 15,
   },
   mediaPlayer: {
     position: 'absolute',
@@ -395,14 +436,14 @@ const styles = StyleSheet.create({
   iconTextBox: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   commentsPic: {
     height: 30,
     width: 30,
   },
   commentsText: {
-    fontSize: 16,
+    fontSize: 15,
     color: 'black',
     marginLeft: 4,
     //backgroundColor: 'red'
@@ -421,13 +462,13 @@ const styles = StyleSheet.create({
   },
   thumbsUp: {
     margin: 5,
-    width: 25,
-    height: 30
+    width: 23,
+    height: 28
   },
   thumbsDown: {
     margin: 5,
-    width: 25,
-    height: 30,
+    width: 23,
+    height: 28,
     transform: [{ rotate: '180deg' }]
   },
   creatorBox: {
@@ -436,8 +477,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderColor: 'lightgrey',
-    borderBottomWidth: 1,
-    borderTopWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderTopWidth: StyleSheet.hairlineWidth,
     paddingVertical: 7
   },
   profilePic: {
@@ -482,16 +523,17 @@ const styles = StyleSheet.create({
   },
   descriptionBox: {
     borderColor: 'lightgrey',
-    borderBottomWidth: 1
+    borderBottomWidth: StyleSheet.hairlineWidth
   },
   commentsTitle: {
     paddingTop: 10,
-    paddingBottom:5,
+    paddingBottom: 5,
     fontSize: 17,
+    fontWeight: 'bold',
     color: 'black'
   },
   comingSoon: {
     fontWeight: '100',
-    fontSize: 13
+    //fontSize: 13
   }
 });

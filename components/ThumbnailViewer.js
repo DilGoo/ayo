@@ -62,6 +62,9 @@ class VideoCard extends Component {
 
   clicked = () => {
     const item = this.props.item;
+    const section = this.props.section;
+    const related = section.data.filter((element, index) => index != this.props.index);
+
     this.props.navigation.navigate('Video', {
       videoID: item.key,
       englishInfo: {  date: item.date,
@@ -75,6 +78,7 @@ class VideoCard extends Component {
                       description: item.descriptionChinese
                    },
       video: item.video,
+      related: related,
     });
     
     // Modify viewCount after navigate away to playerScreen
@@ -89,15 +93,15 @@ export default class ThumbnailViewer extends Component {
                              .groupBy(category)
                              .map((v, k) => ({'title' : k, 'data': v }))
                              .value();
-
+                             
     return (
       // <SafeAreaView>
         <SectionList
           sections={itemsByCategory}
           style={styles.thumbnailList}
-          renderItem={({ item }) => {
+          renderItem={({ item, section, index }) => {
             return (
-              <VideoCard item={item} navigation={this.props.navigation} lang={this.props.lang} />
+              <VideoCard item={item} section={section} index={index} navigation={this.props.navigation} lang={this.props.lang} />
             );
           }}
           renderSectionHeader={({section: {title}}) => {          

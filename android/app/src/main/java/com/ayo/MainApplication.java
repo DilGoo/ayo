@@ -3,6 +3,7 @@ package com.ayo;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.thebylito.navigationbarcolor.NavigationBarColorPackage;
 import com.brentvatne.react.ReactVideoPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import org.wonday.orientation.OrientationPackage;
@@ -28,6 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new NavigationBarColorPackage(),
             new ReactVideoPackage(),
             new VectorIconsPackage(),
             new OrientationPackage(),

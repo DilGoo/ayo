@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-navigation';
 
 import MediaControls from './components/MediaControls';
 import PLAYER_STATES from './components/Constants';
-import { Button } from 'react-native-elements';
+import RelatedVideos from './components/RelatedVideos';
 
 Orientation.lockToPortrait();
 
@@ -49,7 +49,8 @@ export default class VideoScreen extends Component {
       aspectRatio: 16/9,
       viewText: 'loading...',
       thumbUp: null,
-      resizeMode: 'contain'
+      resizeMode: 'contain',
+      followed: false
     };
 
     this._didFocusSubscription = props.navigation.addListener('didFocus', () =>
@@ -212,6 +213,10 @@ export default class VideoScreen extends Component {
     }
   }
 
+  toggleFollow = () => {
+    this.setState(({ followed }) => ({ followed : !followed }));
+  }
+
   scrollToComments = () => {
     this.scrollView.scrollToEnd();
   }
@@ -300,7 +305,9 @@ export default class VideoScreen extends Component {
             />
         </View>
         {!this.state.isFullScreen &&
-          <ScrollView style={styles.scroll} ref={scrollView => (this.scrollView = scrollView)}>
+          <ScrollView style={styles.scroll}
+                      showsVerticalScrollIndicator={false}
+                      ref={scrollView => (this.scrollView = scrollView)}>
             <View style={styles.videoTitleBox}>
               <Text style={styles.videoTitle}>{videoTitle}</Text>
             </View>
@@ -328,23 +335,33 @@ export default class VideoScreen extends Component {
             <View style={styles.creatorBox}>
               <View style={styles.iconTextBox}>
                 <Image source={require('./assets/ic_profile.png')} style={styles.profilePic} />
-                <Text style={styles.creatorText}>{creator}</Text>
+                <View style={styles.dateBox}>
+                  <Text style={styles.creatorText}>{creator}</Text>
+                  <Text style={styles.dateText}>{this.props.lang == 'chinese' ? '上传日期:' : 'Upload Date:'} {uploadDate}</Text>
+                </View>
               </View>
               <View>
-                <TouchableOpacity style={styles.buttonFollow}>
+                <TouchableOpacity style={[styles.buttonFollow, this.state.followed && styles.buttonFollowed]} 
+                                  onPress={this.toggleFollow}>
                   <View style={styles.followTextView}>
-                    <Text style={styles.followText}>FOLLOW</Text>
+                    <Text style={[styles.followText, this.state.followed && styles.followedText]}>
+                      {this.state.followed ? 'FOLLOWED' : '+FOLLOW'}
+                    </Text>
                   </View>
                 </TouchableOpacity>
               </View>
             </View>
             
-            <View style={styles.dateBox}>
+            {/* <View style={styles.dateBox}>
               <Text style={styles.dateText}>{this.props.lang == 'chinese' ? '上传日期:' : 'Upload Date:'} {uploadDate}</Text>
-            </View>
+            </View> */}
             <View style={styles.descriptionBox}>
               <Text style={styles.descriptionText}>{description}</Text>
             </View>
+
+            <Text style={styles.commentsTitle}>Related Videos</Text>
+            <RelatedVideos data={navigation.getParam('related')}/>
+
             <View style={styles.commentsBox}>
               <Text style={styles.commentsTitle}>{this.props.lang == 'chinese' ? '评论' : 'Comments'}</Text>
               <Text style={styles.comingSoon}>{commentsText}</Text>
@@ -477,26 +494,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderColor: 'lightgrey',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderTopWidth: StyleSheet.hairlineWidth,
+    //borderBottomWidth: StyleSheet.hairlineWidth,
+    //borderTopWidth: StyleSheet.hairlineWidth,
     paddingVertical: 7
   },
   profilePic: {
-    height: 50,
-    width: 50,
-    borderRadius: 50,
+    height: 42,
+    width: 42,
   },
   creatorText: {
-    fontSize: 17,
+    fontSize: 15,
     color: 'black',
-    marginLeft: 2
   },
   buttonFollow: {
     height: 38,
-    width: 72,
-    borderWidth: 2,
+    //borderWidth: 2,
+    backgroundColor: 'white',
     borderColor: 'black',
     borderRadius: 2
+  },
+  buttonFollowed: {
+    borderColor: '#777777',
   },
   followTextView: {
     flex: 1,
@@ -505,23 +523,28 @@ const styles = StyleSheet.create({
   },
   followText: {
     fontSize: 15,
+    marginHorizontal: 5,
     color: 'black',
     fontWeight: 'bold'
   },
+  followedText: {
+    color: '#aaaaaa',
+  },
   dateText: {
     //paddingBottom: 7,
+    fontSize: 13,
     fontWeight: "100"
   },
   dateBox: {
-    paddingVertical: 10,
+    paddingLeft: 4,
   },
   descriptionText: {
-    paddingTop: 5,
     fontWeight: '100',
-    paddingBottom: 15,
-    
   },
   descriptionBox: {
+    paddingTop: 11,
+    paddingBottom: 15,
+    paddingHorizontal: 5,
     borderColor: 'lightgrey',
     borderBottomWidth: StyleSheet.hairlineWidth
   },

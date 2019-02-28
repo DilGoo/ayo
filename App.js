@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { Button, Platform, StatusBar, Text, TouchableOpacity } from 'react-native';
 import { MenuProvider } from 'react-native-popup-menu';
 import { createAppContainer, createStackNavigator, SafeAreaView } from 'react-navigation';
+import changeNavigationBarColor from 'react-native-navigation-bar-color';
 
 import Splash from './components/Splash';
 import ThumbnailViewer from './components/ThumbnailViewer';
@@ -138,6 +139,7 @@ export default class App extends React.Component {
   render() {
     StatusBar.setBarStyle('dark-content', true);
     Platform.OS == 'android' && StatusBar.setBackgroundColor('white', true);
+    changeNavigationBarColor('#ffffff', true);
     return (
       <MenuProvider>
         <AppContainer screenProps={{ toggleLang : this.toggleLang, ...this.state}}/>
